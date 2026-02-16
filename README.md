@@ -3,11 +3,11 @@
 <p align="center">
   <img src="https://img.shields.io/badge/Next.js-14-black?style=for-the-badge&logo=next.js" alt="Next.js 14"/>
   <img src="https://img.shields.io/badge/MongoDB-Atlas-47A248?style=for-the-badge&logo=mongodb&logoColor=white" alt="MongoDB"/>
-  <img src="https://img.shields.io/badge/OpenRouter-API-412991?style=for-the-badge" alt="OpenRouter"/>
+  <img src="https://img.shields.io/badge/Gemini-API-4285F4?style=for-the-badge" alt="Gemini"/>
   <img src="https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript"/>
 </p>
 
-A production-ready SaaS application for building and executing AI-powered workflow automation using Next.js 14, MongoDB Atlas, and OpenRouter API (with Google Gemini models).
+A production-ready SaaS application for building and executing AI-powered workflow automation using Next.js 14, MongoDB Atlas, and Google Gemini API.
 
 ## <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Travel%20and%20places/Rocket.png" width="25" height="25" /> Features
 
@@ -24,7 +24,7 @@ A production-ready SaaS application for building and executing AI-powered workfl
 
 - Node.js 18+ installed
 - MongoDB Atlas account (free tier works)
-- OpenRouter API key (for accessing Gemini models)
+- Google Gemini API key
 - Git (optional)
 
 ## <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Objects/Hammer%20and%20Wrench.png" width="25" height="25" /> Installation
@@ -43,8 +43,9 @@ Create a `.env` file in the root directory:
 # MongoDB Atlas Free Tier
 MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/workflow-builder?retryWrites=true&w=majority
 
-# OpenRouter API (for Gemini models)
-OPENROUTER_API_KEY=your_openrouter_api_key_here
+# Google Gemini API
+GEMINI_API_KEY=your_gemini_api_key_here
+GEMINI_MODEL=models/gemini-flash-latest
 
 # NextAuth Configuration
 NEXTAUTH_URL=http://localhost:3000
@@ -65,11 +66,11 @@ node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
 4. Click "Connect" → "Connect your application"
 5. Copy the connection string and replace `<password>` with your database password
 
-**OpenRouter API:**
-1. Go to [OpenRouter](https://openrouter.ai/keys)
-2. Create a free account and generate an API key
-3. Copy the key to your `.env` file as `OPENROUTER_API_KEY`
-4. OpenRouter provides access to Google Gemini models with free credits
+**Google Gemini API:**
+1. Go to [Google AI Studio](https://aistudio.google.com/)
+2. Create or select a project and generate an API key
+3. Copy the key to your `.env` file as `GEMINI_API_KEY`
+4. Set `GEMINI_MODEL=models/gemini-flash-latest`
 
 ## <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Travel%20and%20places/Rocket.png" width="25" height="25" /> Running Locally
 
@@ -97,7 +98,8 @@ npm start
 4. Import your GitHub repository
 5. Add environment variables:
    - `MONGODB_URI`
-  - `OPENROUTER_API_KEY` (your OpenRouter API key)
+  - `GEMINI_API_KEY`
+  - `GEMINI_MODEL` (recommended: `models/gemini-flash-latest`)
    - `NEXTAUTH_SECRET`
    - `NEXTAUTH_URL` (set to your Vercel deployment URL)
 6. Click "Deploy"
@@ -113,7 +115,8 @@ vercel
 
 # Add environment variables
 vercel env add MONGODB_URI
-vercel env add OPENROUTER_API_KEY
+vercel env add GEMINI_API_KEY
+vercel env add GEMINI_MODEL
 vercel env add NEXTAUTH_SECRET
 vercel env add NEXTAUTH_URL
 
@@ -188,7 +191,7 @@ workflow-builder-pro/
 │   └── providers.tsx    # Context providers
 ├── lib/
 │   ├── mongodb.ts       # Database connection
-│   ├── gemini.ts        # OpenRouter AI client (Gemini models)
+│   ├── gemini.ts        # Google Gemini API client
 │   ├── auth.ts          # NextAuth config
 │   ├── workflowProcessor.ts  # Workflow engine
 │   ├── utils.ts         # Utility functions
@@ -232,11 +235,11 @@ The quick brown fox jumps over the lazy dog. This is a sample text for testing t
 - Check connection string format
 - Verify database user credentials
 
-### OpenRouter API Errors
-- Verify API key is correct
-- Check OpenRouter credits/limits at https://openrouter.ai/credits
+### Gemini API Errors
+- Verify `GEMINI_API_KEY` is correct
+- Check Gemini API quota/rate limits in Google AI Studio
 - Ensure internet connectivity
-- Verify the Gemini model is available on OpenRouter
+- Verify `GEMINI_MODEL` is available for your key (recommended: `models/gemini-flash-latest`)
 
 ### Build Errors
 - Clear `.next` folder: `rm -rf .next`
@@ -258,5 +261,5 @@ For issues or questions, please create an issue in the repository.
 ---
 
 <p align="center">
-  <strong>Built with <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Red%20Heart.png" width="20" height="20" /> using Next.js 14, MongoDB, and OpenRouter API (Google Gemini models)</strong>
+  <strong>Built with <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Red%20Heart.png" width="20" height="20" /> using Next.js 14, MongoDB, and Google Gemini API</strong>
 </p>
