@@ -31,6 +31,24 @@ async function runWorkflowWithTimeout(steps: string[], inputText: string) {
     });
 }
 
+async function withRouteTimeout<T>(operation: () => Promise<T>): Promise<T> {
+    return new Promise<T>((resolve, reject) => {
+        const timeoutId = setTimeout(() => {
+            reject(new Error(`Route execution timed out after ${WORKFLOW_PROCESS_TIMEOUT_MS}ms`));
+        }, WORKFLOW_PROCESS_TIMEOUT_MS);
+
+        operation()
+            .then((result) => {
+                clearTimeout(timeoutId);
+                resolve(result);
+            })
+            .catch((error) => {
+                clearTimeout(timeoutId);
+                reject(error);
+            });
+    });
+}
+
 // Rate limiting (simple in-memory store for demo)
 const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
 
@@ -57,61 +75,71 @@ function checkRateLimit(userId: string): boolean {
 
 export async function POST(req: NextRequest) {
     try {
-        const session = await getServerSession(authOptions);
+        return await withRouteTimeout(async () => {
+            const session = await getServerSession(authOptions);
 
-        if (!session?.user?.id) {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-        }
+            if (!session?.user?.id) {
+                return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+            }
 
-        // Check rate limit
-        if (!checkRateLimit(session.user.id)) {
+            // Check rate limit
+            if (!checkRateLimit(session.user.id)) {
+                return NextResponse.json(
+                    { error: 'Rate limit exceeded. Please try again later.' },
+                    { status: 429 }
+                );
+            }
+
+            const body = await req.json();
+            const validatedData = runWorkflowSchema.parse(body);
+
+            await dbConnect();
+
+            // Get workflow
+            const workflow = await Workflow.findOne({
+                _id: validatedData.workflowId,
+                userId: session.user.id,
+            }).lean();
+
+            if (!workflow) {
+                return NextResponse.json({ error: 'Workflow not found' }, { status: 404 });
+            }
+
+            // Process workflow
+            const result = await runWorkflowWithTimeout(workflow.steps, validatedData.inputText);
+
+            const responseRun = {
+                id: `pending-${Date.now()}`,
+                workflowName: workflow.name,
+                inputText: validatedData.inputText,
+                stepOutputs: result.stepOutputs,
+                executionTime: result.executionTime,
+                createdAt: new Date().toISOString(),
+            };
+
+            Run.create({
+                userId: session.user.id,
+                workflowId: workflow._id,
+                workflowName: workflow.name,
+                inputText: validatedData.inputText,
+                stepOutputs: result.stepOutputs,
+                executionTime: result.executionTime,
+            })
+                .then((savedRun) => {
+                    responseRun.id = String(savedRun._id);
+                    responseRun.createdAt = savedRun.createdAt?.toISOString?.() || responseRun.createdAt;
+                })
+                .catch((saveError) => {
+                    console.error('Failed to persist run history:', saveError);
+                });
+
             return NextResponse.json(
-                { error: 'Rate limit exceeded. Please try again later.' },
-                { status: 429 }
-            );
-        }
-
-        const body = await req.json();
-        const validatedData = runWorkflowSchema.parse(body);
-
-        await dbConnect();
-
-        // Get workflow
-        const workflow = await Workflow.findOne({
-            _id: validatedData.workflowId,
-            userId: session.user.id,
-        });
-
-        if (!workflow) {
-            return NextResponse.json({ error: 'Workflow not found' }, { status: 404 });
-        }
-
-        // Process workflow
-        const result = await runWorkflowWithTimeout(workflow.steps, validatedData.inputText);
-
-        // Save run
-        const run = await Run.create({
-            userId: session.user.id,
-            workflowId: workflow._id,
-            workflowName: workflow.name,
-            inputText: validatedData.inputText,
-            stepOutputs: result.stepOutputs,
-            executionTime: result.executionTime,
-        });
-
-        return NextResponse.json(
-            {
-                run: {
-                    id: run._id,
-                    workflowName: run.workflowName,
-                    inputText: run.inputText,
-                    stepOutputs: run.stepOutputs,
-                    executionTime: run.executionTime,
-                    createdAt: run.createdAt,
+                {
+                    run: responseRun,
                 },
-            },
-            { status: 200 }
-        );
+                { status: 200 }
+            );
+        });
     } catch (error: any) {
         console.error('Error running workflow:', error);
 

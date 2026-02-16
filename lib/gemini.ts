@@ -1,24 +1,21 @@
-type OpenRouterCompletionResponse = {
-    choices?: Array<{
-        message?: {
-            content?: string | Array<{ type?: string; text?: string }>;
-        };
-    }>;
-};
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
-const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
-const OPENROUTER_BASE_URL = process.env.OPENROUTER_BASE_URL || 'https://openrouter.ai/api/v1';
-const OPENROUTER_TIMEOUT_MS = Number.parseInt(process.env.OPENROUTER_TIMEOUT_MS || '8000', 10);
-const OPENROUTER_TOTAL_TIMEOUT_MS = Number.parseInt(process.env.OPENROUTER_TOTAL_TIMEOUT_MS || '45000', 10);
-const OPENROUTER_MODEL = (process.env.OPENROUTER_MODEL || 'deepseek/deepseek-r1-0528:free').trim();
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY?.trim();
+const GEMINI_MODEL = (process.env.GEMINI_MODEL || 'models/gemini-2.0-flash').trim();
+const GEMINI_TIMEOUT_MS = Number.parseInt(
+    process.env.GEMINI_TIMEOUT_MS || process.env.OPENROUTER_TIMEOUT_MS || '8000',
+    10
+);
 
-if (!OPENROUTER_API_KEY) {
-    throw new Error('Please define OPENROUTER_API_KEY in .env');
+if (!GEMINI_API_KEY) {
+    throw new Error('Please define GEMINI_API_KEY in .env');
 }
 
-if (/^AIza/i.test(OPENROUTER_API_KEY)) {
-    throw new Error('OPENROUTER_API_KEY appears to be a Google/Gemini key (AIza...). Use your OpenRouter key instead.');
+if (/^sk-or-v1/i.test(GEMINI_API_KEY)) {
+    throw new Error('GEMINI_API_KEY appears to be an OpenRouter key (sk-or-v1...). Use your Google Gemini API key instead.');
 }
+
+const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 
 export class GeminiQuotaExceededError extends Error {
     retryAfterSeconds?: number;
@@ -34,37 +31,11 @@ function normalizeModelName(modelName: string): string {
     return modelName.trim();
 }
 
-function getOpenRouterHeaders(): HeadersInit {
-    const headers: HeadersInit = {
-        Authorization: `Bearer ${OPENROUTER_API_KEY}`,
-        'Content-Type': 'application/json',
-        'HTTP-Referer': process.env.NEXTAUTH_URL || 'http://localhost:3000',
-        'X-Title': 'Workflow Builder Lite',
-    };
-
-    return headers;
-}
-
-function parseOpenRouterContent(content: string | Array<{ type?: string; text?: string }> | undefined): string {
-    if (typeof content === 'string') {
-        return content;
-    }
-
-    if (Array.isArray(content)) {
-        return content
-            .map((part) => part.text ?? '')
-            .join(' ')
-            .trim();
-    }
-
-    return '';
-}
-
 async function getModelCandidates(): Promise<string[]> {
-    const selectedModel = normalizeModelName(OPENROUTER_MODEL);
+    const selectedModel = normalizeModelName(GEMINI_MODEL);
 
     if (!selectedModel) {
-        throw new Error('No OpenRouter model configured. Set OPENROUTER_MODEL in your environment.');
+        throw new Error('No Gemini model configured. Set GEMINI_MODEL in your environment.');
     }
 
     return [selectedModel];
@@ -78,7 +49,7 @@ function isModelNotFoundError(error: unknown): boolean {
     const maybeError = error as { status?: number; message?: string };
     const message = maybeError.message ?? '';
 
-    return maybeError.status === 404 || /not found|no such model|model unavailable/i.test(message);
+    return maybeError.status === 404 || /not found|no such model|model unavailable|not supported/i.test(message);
 }
 
 function isQuotaExceededError(error: unknown): boolean {
@@ -89,7 +60,7 @@ function isQuotaExceededError(error: unknown): boolean {
     const maybeError = error as { status?: number; message?: string };
     const message = maybeError.message ?? '';
 
-    return maybeError.status === 429 || /quota exceeded|too many requests|rate limit/i.test(message);
+    return maybeError.status === 429 || /quota exceeded|too many requests|rate limit|resource exhausted/i.test(message);
 }
 
 function extractRetryAfterSeconds(error: unknown): number | undefined {
@@ -130,66 +101,65 @@ function isTransientProviderError(error: unknown): boolean {
         return true;
     }
 
-    return /timed out|timeout|temporarily|provider returned error|rate-limited upstream|retry shortly/i.test(message);
+    return /timed out|timeout|temporarily|rate-limited upstream|retry shortly|internal error|service unavailable/i.test(message);
 }
 
-async function generateWithOpenRouter(modelName: string, prompt: string): Promise<string> {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), OPENROUTER_TIMEOUT_MS);
-
-    let response: Response;
+async function generateWithGemini(modelName: string, prompt: string): Promise<string> {
+    const model = genAI.getGenerativeModel({ model: modelName });
 
     try {
-        response = await fetch(`${OPENROUTER_BASE_URL}/chat/completions`, {
-            method: 'POST',
-            headers: getOpenRouterHeaders(),
-            signal: controller.signal,
-            body: JSON.stringify({
-                model: modelName,
-                messages: [{ role: 'user', content: prompt }],
-                temperature: 0.2,
-                max_tokens: 1024,
+        const result = await Promise.race([
+            model.generateContent(prompt),
+            new Promise<never>((_, reject) => {
+                setTimeout(() => {
+                    reject(
+                        createApiError(
+                            `Gemini request timed out after ${GEMINI_TIMEOUT_MS}ms for model ${modelName}.`,
+                            504
+                        )
+                    );
+                }, GEMINI_TIMEOUT_MS);
             }),
-        });
+        ]);
+
+        const response = await result.response;
+        const text = response.text().trim();
+
+        if (!text) {
+            throw createApiError('Gemini returned an empty response.', 502);
+        }
+
+        return text;
     } catch (error) {
-        if (error instanceof Error && error.name === 'AbortError') {
+        const maybeError = error as { status?: number; message?: string };
+        const message = maybeError?.message ?? '';
+
+        if (maybeError?.status === 401 || maybeError?.status === 403 || /api key|permission|unauthorized|forbidden/i.test(message)) {
             throw createApiError(
-                `OpenRouter request timed out after ${OPENROUTER_TIMEOUT_MS}ms for model ${modelName}.`,
-                504,
+                'Gemini authentication failed. Verify GEMINI_API_KEY in your environment and ensure Generative Language API access is enabled.',
+                maybeError?.status || 403,
                 error
             );
         }
 
-        throw error;
-    } finally {
-        clearTimeout(timeoutId);
-    }
-
-    if (!response.ok) {
-        const errorText = await response.text();
-        const lowerErrorText = errorText.toLowerCase();
-
-        if (response.status === 401 || response.status === 403 || lowerErrorText.includes('authenticate request with clerk')) {
+        if (isModelNotFoundError(error)) {
             throw createApiError(
-                'OpenRouter authentication failed. Verify OPENROUTER_API_KEY in .env and ensure it is active for your OpenRouter account.',
-                response.status
+                `Gemini model ${modelName} is unavailable for this key/version. Set GEMINI_MODEL to an available model (for example: models/gemini-2.0-flash).`,
+                404,
+                error
             );
         }
 
-        throw createApiError(
-            `OpenRouter request failed (${response.status} ${response.statusText}): ${errorText.slice(0, 500)}`,
-            response.status
-        );
+        if (isQuotaExceededError(error)) {
+            throw new GeminiQuotaExceededError(
+                'Gemini quota/rate limit exceeded for the configured model.',
+                extractRetryAfterSeconds(error),
+                { cause: error }
+            );
+        }
+
+        throw error;
     }
-
-    const data = (await response.json()) as OpenRouterCompletionResponse;
-    const text = parseOpenRouterContent(data.choices?.[0]?.message?.content).trim();
-
-    if (!text) {
-        throw createApiError('OpenRouter returned an empty response.', 502);
-    }
-
-    return text;
 }
 
 export function isGeminiQuotaExceededError(error: unknown): error is GeminiQuotaExceededError {
@@ -197,15 +167,15 @@ export function isGeminiQuotaExceededError(error: unknown): error is GeminiQuota
 }
 
 export const getGeminiModel = (modelName?: string) => {
-    const selectedModel = normalizeModelName(modelName || OPENROUTER_MODEL);
+    const selectedModel = normalizeModelName(modelName || GEMINI_MODEL);
 
     if (!selectedModel) {
-        throw new Error('No OpenRouter model configured. Set OPENROUTER_MODEL in your environment.');
+        throw new Error('No Gemini model configured. Set GEMINI_MODEL in your environment.');
     }
 
     return {
         generateContent: async (prompt: string) => {
-            const text = await generateWithOpenRouter(selectedModel, prompt);
+            const text = await generateWithGemini(selectedModel, prompt);
 
             return {
                 response: Promise.resolve({
@@ -221,35 +191,27 @@ export async function generateWithGeminiFallback(prompt: string): Promise<string
     let quotaDetected = false;
     let retryAfterSeconds: number | undefined;
     const candidates = await getModelCandidates();
-    const startedAt = Date.now();
-
     for (const modelName of candidates) {
-        if (Date.now() - startedAt >= OPENROUTER_TOTAL_TIMEOUT_MS) {
-            throw new Error(
-                `OpenRouter total timeout reached after ${OPENROUTER_TOTAL_TIMEOUT_MS}ms while trying fallback models.`,
-                { cause: lastError }
-            );
-        }
 
         try {
-            return await generateWithOpenRouter(modelName, prompt);
+            return await generateWithGemini(modelName, prompt);
         } catch (error) {
             lastError = error;
 
             if (isModelNotFoundError(error)) {
-                console.warn(`OpenRouter model unavailable: ${modelName}. Trying next model...`);
+                console.warn(`Gemini model unavailable: ${modelName}.`);
                 continue;
             }
 
             if (isQuotaExceededError(error)) {
                 quotaDetected = true;
                 retryAfterSeconds = retryAfterSeconds ?? extractRetryAfterSeconds(error);
-                console.warn(`OpenRouter quota/rate limit hit on model ${modelName}. Trying next model...`);
+                console.warn(`Gemini quota/rate limit hit on model ${modelName}.`);
                 continue;
             }
 
             if (isTransientProviderError(error)) {
-                console.warn(`OpenRouter transient issue on model ${modelName}. Trying next model...`);
+                console.warn(`Gemini transient issue on model ${modelName}.`);
                 continue;
             }
 
@@ -263,20 +225,20 @@ export async function generateWithGeminiFallback(prompt: string): Promise<string
             : '';
 
         throw new GeminiQuotaExceededError(
-            `OpenRouter quota/rate limit hit for all configured models.${retryMessage}`,
+            `Gemini quota/rate limit hit for configured model.${retryMessage}`,
             retryAfterSeconds,
             { cause: lastError }
         );
     }
 
     throw new Error(
-        `No supported OpenRouter model is available. Tried: ${candidates.join(', ')}`,
+        `No supported Gemini model is available. Tried: ${candidates.join(', ')}`,
         { cause: lastError }
     );
 }
 
 const aiProviderClient = {
-    provider: 'openrouter',
+    provider: 'gemini',
 };
 
 export default aiProviderClient;
