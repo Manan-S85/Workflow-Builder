@@ -1,8 +1,15 @@
 # Workflow Builder Pro – AI Automation Studio
 
-A production-ready SaaS application for building and executing AI-powered workflow automation using Next.js 14, MongoDB Atlas, and OpenRouter API (with OPENROUTER models).
+<p align="center">
+  <img src="https://img.shields.io/badge/Next.js-14-black?style=for-the-badge&logo=next.js" alt="Next.js 14"/>
+  <img src="https://img.shields.io/badge/MongoDB-Atlas-47A248?style=for-the-badge&logo=mongodb&logoColor=white" alt="MongoDB"/>
+  <img src="https://img.shields.io/badge/OpenRouter-API-412991?style=for-the-badge" alt="OpenRouter"/>
+  <img src="https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript"/>
+</p>
 
-## 🚀 Features
+A production-ready SaaS application for building and executing AI-powered workflow automation using Next.js 14, MongoDB Atlas, and OpenRouter API (with Google Gemini models).
+
+## <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Travel%20and%20places/Rocket.png" width="25" height="25" /> Features
 
 - **User Authentication** - Secure login/register with NextAuth.js
 - **Multi-Tenant Architecture** - Each user has isolated workflows and runs
@@ -13,14 +20,14 @@ A production-ready SaaS application for building and executing AI-powered workfl
 - **Modern UI** - Beautiful SaaS design with dark mode support
 - **Vercel Free Tier Compatible** - Optimized for serverless deployment
 
-## 📋 Prerequisites
+## <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Objects/Clipboard.png" width="25" height="25" /> Prerequisites
 
 - Node.js 18+ installed
 - MongoDB Atlas account (free tier works)
-- OpenRouter API key (for accessing Various models)
+- OpenRouter API key (for accessing Gemini models)
 - Git (optional)
 
-## 🛠️ Installation
+## <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Objects/Hammer%20and%20Wrench.png" width="25" height="25" /> Installation
 
 ### 1. Install Dependencies
 
@@ -34,10 +41,10 @@ Create a `.env` file in the root directory:
 
 ```env
 # MongoDB Atlas Free Tier
-MONGODB_URI=your_mongodb_uri_here
+MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/workflow-builder?retryWrites=true&w=majority
 
-# OpenRouter API (for Various models)
-OPENROUTER_API_KEY=your_openrouter_api_key_here
+# OpenRouter API (for Gemini models)
+GEMINI_API_KEY=your_openrouter_api_key_here
 
 # NextAuth Configuration
 NEXTAUTH_URL=http://localhost:3000
@@ -61,10 +68,10 @@ node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
 **OpenRouter API:**
 1. Go to [OpenRouter](https://openrouter.ai/keys)
 2. Create a free account and generate an API key
-3. Copy the key to your `.env` file as `OPENROUTER_API_KEY`
-4. OpenRouter provides access to OPENROUTER models with free credits
+3. Copy the key to your `.env` file as `GEMINI_API_KEY`
+4. OpenRouter provides access to Google Gemini models with free credits
 
-## 🚀 Running Locally
+## <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Travel%20and%20places/Rocket.png" width="25" height="25" /> Running Locally
 
 ```bash
 # Development mode
@@ -73,14 +80,14 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-## 📦 Building for Production
+## <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Objects/Package.png" width="25" height="25" /> Building for Production
 
 ```bash
 npm run build
 npm start
 ```
 
-## 🌐 Deploying to Vercel (Free Tier)
+## <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Symbols/Globe%20with%20Meridians.png" width="25" height="25" /> Deploying to Vercel (Free Tier)
 
 ### Option 1: Deploy via Vercel Dashboard
 
@@ -90,7 +97,7 @@ npm start
 4. Import your GitHub repository
 5. Add environment variables:
    - `MONGODB_URI`
-   - `OPENROUTER_API_KEY` (your OpenRouter API key)
+   - `GEMINI_API_KEY` (your OpenRouter API key)
    - `NEXTAUTH_SECRET`
    - `NEXTAUTH_URL` (set to your Vercel deployment URL)
 6. Click "Deploy"
@@ -106,7 +113,7 @@ vercel
 
 # Add environment variables
 vercel env add MONGODB_URI
-vercel env add OPENROUTER_API_KEY
+vercel env add GEMINI_API_KEY
 vercel env add NEXTAUTH_SECRET
 vercel env add NEXTAUTH_URL
 
@@ -114,7 +121,7 @@ vercel env add NEXTAUTH_URL
 vercel --prod
 ```
 
-## 📖 Usage Guide
+## <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Objects/Open%20Book.png" width="25" height="25" /> Usage Guide
 
 ### 1. Register an Account
 - Navigate to `/register`
@@ -142,7 +149,7 @@ vercel --prod
 - Click "Show Details" to see step outputs
 - Navigate through pages
 
-## 🎨 Available Workflow Steps
+## <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Objects/Artist%20Palette.png" width="25" height="25" /> Available Workflow Steps
 
 1. **Clean Text** - Removes extra whitespace and normalizes text
 2. **Summarize** - Creates a 3-5 sentence summary
@@ -152,7 +159,7 @@ vercel --prod
 6. **Rewrite Professional** - Rewrites in professional tone
 7. **Generate Title** - Creates a concise title
 
-## 🔒 Security Features
+## <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Objects/Locked.png" width="25" height="25" /> Security Features
 
 - Password hashing using crypto module
 - JWT-based session management
@@ -161,7 +168,7 @@ vercel --prod
 - Input validation (5000 char limit)
 - Rate limiting (10 requests/minute)
 
-## 🏗️ Project Structure
+## <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Objects/Building%20Construction.png" width="25" height="25" /> Project Structure
 
 ```
 workflow-builder-pro/
@@ -181,7 +188,7 @@ workflow-builder-pro/
 │   └── providers.tsx    # Context providers
 ├── lib/
 │   ├── mongodb.ts       # Database connection
-│   ├── gemini.ts        # OpenRouter AI client (OPENROUTER models)
+│   ├── gemini.ts        # OpenRouter AI client (Gemini models)
 │   ├── auth.ts          # NextAuth config
 │   ├── workflowProcessor.ts  # Workflow engine
 │   ├── utils.ts         # Utility functions
@@ -193,7 +200,7 @@ workflow-builder-pro/
 └── middleware.ts        # Route protection
 ```
 
-## 🧪 Testing
+## <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Objects/Test%20Tube.png" width="25" height="25" /> Testing
 
 ### Manual Testing Checklist
 
@@ -218,7 +225,7 @@ workflow-builder-pro/
 The quick brown fox jumps over the lazy dog. This is a sample text for testing the workflow automation system. It contains multiple sentences and should work well with all the AI processing steps available in the system.
 ```
 
-## 🐛 Troubleshooting
+## <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Animals/Bug.png" width="25" height="25" /> Troubleshooting
 
 ### MongoDB Connection Issues
 - Ensure your IP is whitelisted in MongoDB Atlas
@@ -229,25 +236,27 @@ The quick brown fox jumps over the lazy dog. This is a sample text for testing t
 - Verify API key is correct
 - Check OpenRouter credits/limits at https://openrouter.ai/credits
 - Ensure internet connectivity
-- Verify the OPENROUTER model is available on OpenRouter
+- Verify the Gemini model is available on OpenRouter
 
 ### Build Errors
 - Clear `.next` folder: `rm -rf .next`
 - Delete `node_modules` and reinstall: `rm -rf node_modules && npm install`
 - Check Node.js version (18+ required)
 
-## 📝 License
+## <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Objects/Memo.png" width="25" height="25" /> License
 
 MIT License - feel free to use this project for learning or commercial purposes.
 
-## 🤝 Contributing
+## <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Hand%20gestures/Handshake.png" width="25" height="25" /> Contributing
 
 This is a demonstration project. Feel free to fork and modify as needed.
 
-## 📧 Support
+## <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Objects/E-Mail.png" width="25" height="25" /> Support
 
 For issues or questions, please create an issue in the repository.
 
 ---
 
-**Built with ❤️ using Next.js 14, MongoDB, and OpenRouter API (OPENROUTER models)**
+<p align="center">
+  <strong>Built with <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Red%20Heart.png" width="20" height="20" /> using Next.js 14, MongoDB, and OpenRouter API (Google Gemini models)</strong>
+</p>
