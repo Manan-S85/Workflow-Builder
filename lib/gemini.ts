@@ -10,7 +10,7 @@ const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
 const OPENROUTER_BASE_URL = process.env.OPENROUTER_BASE_URL || 'https://openrouter.ai/api/v1';
 const OPENROUTER_TIMEOUT_MS = Number.parseInt(process.env.OPENROUTER_TIMEOUT_MS || '12000', 10);
 const OPENROUTER_TOTAL_TIMEOUT_MS = Number.parseInt(process.env.OPENROUTER_TOTAL_TIMEOUT_MS || '45000', 10);
-const OPENROUTER_MAX_MODELS = Math.max(1, Number.parseInt(process.env.OPENROUTER_MAX_MODELS || '2', 10));
+const OPENROUTER_MODEL = (process.env.OPENROUTER_MODEL || 'deepseek/deepseek-r1-0528:free').trim();
 
 if (!OPENROUTER_API_KEY) {
     throw new Error('Please define OPENROUTER_API_KEY in .env');
@@ -19,17 +19,6 @@ if (!OPENROUTER_API_KEY) {
 if (/^AIza/i.test(OPENROUTER_API_KEY)) {
     throw new Error('OPENROUTER_API_KEY appears to be a Google/Gemini key (AIza...). Use your OpenRouter key instead.');
 }
-
-const DEFAULT_MODEL_CANDIDATES = [
-    'deepseek/deepseek-r1-0528:free',
-    process.env.OPENROUTER_MODEL,
-    process.env.GEMINI_MODEL,
-    'meta-llama/llama-3.3-70b-instruct:free',
-    'xiaomi/mimo-v2-flash:free',
-    'google/gemini-2.0-flash-exp:free',
-    'mistralai/mistral-7b-instruct:free',
-    'meta-llama/llama-3.1-8b-instruct:free',
-].filter((model): model is string => Boolean(model));
 
 export class GeminiQuotaExceededError extends Error {
     retryAfterSeconds?: number;
@@ -72,10 +61,13 @@ function parseOpenRouterContent(content: string | Array<{ type?: string; text?: 
 }
 
 async function getModelCandidates(): Promise<string[]> {
-    return Array.from(new Set(DEFAULT_MODEL_CANDIDATES.map(normalizeModelName).filter(Boolean))).slice(
-        0,
-        OPENROUTER_MAX_MODELS
-    );
+    const selectedModel = normalizeModelName(OPENROUTER_MODEL);
+
+    if (!selectedModel) {
+        throw new Error('No OpenRouter model configured. Set OPENROUTER_MODEL in your environment.');
+    }
+
+    return [selectedModel];
 }
 
 function isModelNotFoundError(error: unknown): boolean {
@@ -205,7 +197,7 @@ export function isGeminiQuotaExceededError(error: unknown): error is GeminiQuota
 }
 
 export const getGeminiModel = (modelName?: string) => {
-    const selectedModel = normalizeModelName(modelName || DEFAULT_MODEL_CANDIDATES[0]);
+    const selectedModel = normalizeModelName(modelName || OPENROUTER_MODEL);
 
     if (!selectedModel) {
         throw new Error('No OpenRouter model configured. Set OPENROUTER_MODEL in your environment.');
