@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { signIn } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,7 +10,6 @@ import { toast } from 'sonner';
 import { Loader2, Mail, Lock, Workflow, Sparkles, Zap, ArrowRight } from 'lucide-react';
 
 export default function LoginPage() {
-    const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
     const [formData, setFormData] = useState({
         email: '',
@@ -26,6 +24,7 @@ export default function LoginPage() {
             const result = await signIn('credentials', {
                 email: formData.email,
                 password: formData.password,
+                callbackUrl: '/dashboard',
                 redirect: false,
             });
 
@@ -33,8 +32,7 @@ export default function LoginPage() {
                 toast.error(result.error);
             } else {
                 toast.success('Login successful!');
-                router.push('/dashboard');
-                router.refresh();
+                window.location.assign('/dashboard');
             }
         } catch (error) {
             toast.error('An error occurred. Please try again.');

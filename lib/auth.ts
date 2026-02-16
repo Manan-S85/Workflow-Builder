@@ -3,6 +3,8 @@ import CredentialsProvider from 'next-auth/providers/credentials';
 import dbConnect from './mongodb';
 import User from '@/models/User';
 
+const AUTH_SECRET = process.env.NEXTAUTH_SECRET || process.env.AUTH_SECRET;
+
 export const authOptions: NextAuthOptions = {
     providers: [
         CredentialsProvider({
@@ -59,5 +61,5 @@ export const authOptions: NextAuthOptions = {
             return session;
         },
     },
-    secret: process.env.NEXTAUTH_SECRET,
+    secret: AUTH_SECRET,
 };
