@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { signOut, useSession } from 'next-auth/react';
 import { Button } from './ui/button';
 import {
@@ -13,7 +13,8 @@ import {
     LogOut,
     Moon,
     Sun,
-    BookOpen
+    BookOpen,
+    Activity
 } from 'lucide-react';
 import { useTheme } from 'next-themes';
 
@@ -22,17 +23,20 @@ const navigation = [
     { name: 'Workflows', href: '/workflows', icon: Workflow },
     { name: 'Run', href: '/run', icon: Play },
     { name: 'History', href: '/history', icon: History },
+    { name: 'Status', href: '/status', icon: Activity },
     { name: 'Guide', href: '/guide', icon: BookOpen },
     { name: 'Settings', href: '/settings', icon: Settings },
 ];
 
 export function Navbar() {
     const pathname = usePathname();
+    const router = useRouter();
     const { data: session } = useSession();
     const { theme, setTheme } = useTheme();
 
     const handleSignOut = async () => {
-        await signOut({ callbackUrl: '/login' });
+        await signOut({ redirect: false });
+        router.push('/login');
     };
 
     return (
