@@ -7,6 +7,8 @@ import Run from '@/models/Run';
 import { runWorkflowSchema } from '@/lib/validations';
 import { processWorkflow } from '@/lib/workflowProcessor';
 
+export const maxDuration = 60;
+
 // Rate limiting (simple in-memory store for demo)
 const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
 

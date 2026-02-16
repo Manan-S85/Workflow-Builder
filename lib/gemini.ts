@@ -8,7 +8,9 @@ type OpenRouterCompletionResponse = {
 
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
 const OPENROUTER_BASE_URL = process.env.OPENROUTER_BASE_URL || 'https://openrouter.ai/api/v1';
-const OPENROUTER_TIMEOUT_MS = Number.parseInt(process.env.OPENROUTER_TIMEOUT_MS || '20000', 10);
+const OPENROUTER_TIMEOUT_MS = Number.parseInt(process.env.OPENROUTER_TIMEOUT_MS || '12000', 10);
+const OPENROUTER_TOTAL_TIMEOUT_MS = Number.parseInt(process.env.OPENROUTER_TOTAL_TIMEOUT_MS || '45000', 10);
+const OPENROUTER_MAX_MODELS = Math.max(1, Number.parseInt(process.env.OPENROUTER_MAX_MODELS || '2', 10));
 
 if (!OPENROUTER_API_KEY) {
     throw new Error('Please define OPENROUTER_API_KEY in .env');
@@ -70,7 +72,10 @@ function parseOpenRouterContent(content: string | Array<{ type?: string; text?: 
 }
 
 async function getModelCandidates(): Promise<string[]> {
-    return Array.from(new Set(DEFAULT_MODEL_CANDIDATES.map(normalizeModelName).filter(Boolean)));
+    return Array.from(new Set(DEFAULT_MODEL_CANDIDATES.map(normalizeModelName).filter(Boolean))).slice(
+        0,
+        OPENROUTER_MAX_MODELS
+    );
 }
 
 function isModelNotFoundError(error: unknown): boolean {
@@ -224,8 +229,16 @@ export async function generateWithGeminiFallback(prompt: string): Promise<string
     let quotaDetected = false;
     let retryAfterSeconds: number | undefined;
     const candidates = await getModelCandidates();
+    const startedAt = Date.now();
 
     for (const modelName of candidates) {
+        if (Date.now() - startedAt >= OPENROUTER_TOTAL_TIMEOUT_MS) {
+            throw new Error(
+                `OpenRouter total timeout reached after ${OPENROUTER_TOTAL_TIMEOUT_MS}ms while trying fallback models.`,
+                { cause: lastError }
+            );
+        }
+
         try {
             return await generateWithOpenRouter(modelName, prompt);
         } catch (error) {

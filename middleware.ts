@@ -5,10 +5,19 @@ import { getToken } from 'next-auth/jwt';
 const AUTH_SECRET = process.env.NEXTAUTH_SECRET || process.env.AUTH_SECRET;
 
 export async function middleware(request: NextRequest) {
-    const token = await getToken({
+    let token = await getToken({
         req: request,
         secret: AUTH_SECRET,
+        secureCookie: true,
     });
+
+    if (!token) {
+        token = await getToken({
+            req: request,
+            secret: AUTH_SECRET,
+            secureCookie: false,
+        });
+    }
 
     const isAuthPage =
         request.nextUrl.pathname.startsWith('/login') ||

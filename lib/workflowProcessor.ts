@@ -14,7 +14,7 @@ export interface ProcessResult {
 // Re-export for backward compatibility
 export { STEP_TYPES, type StepType };
 
-const ALLOW_LOCAL_AI_FALLBACK = process.env.ALLOW_LOCAL_AI_FALLBACK === 'true';
+const ALLOW_LOCAL_AI_FALLBACK = process.env.ALLOW_LOCAL_AI_FALLBACK !== 'false';
 
 
 // Step processor functions
