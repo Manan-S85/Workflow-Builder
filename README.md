@@ -34,7 +34,7 @@ Create a `.env` file in the root directory:
 
 ```env
 # MongoDB Atlas Free Tier
-MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/workflow-builder?retryWrites=true&w=majority
+MONGODB_URI=your_mongodb_uri_here
 
 # Google Gemini API
 GEMINI_API_KEY=your_gemini_api_key_here
