@@ -1,6 +1,6 @@
 # Workflow Builder Pro – AI Automation Studio
 
-A production-ready SaaS application for building and executing AI-powered workflow automation using Next.js 14, MongoDB Atlas, and Google Gemini API.
+A production-ready SaaS application for building and executing AI-powered workflow automation using Next.js 14, MongoDB Atlas, and OpenRouter API (with Google Gemini models).
 
 ## 🚀 Features
 
@@ -17,7 +17,7 @@ A production-ready SaaS application for building and executing AI-powered workfl
 
 - Node.js 18+ installed
 - MongoDB Atlas account (free tier works)
-- Google Gemini API key
+- OpenRouter API key (for accessing Gemini models)
 - Git (optional)
 
 ## 🛠️ Installation
@@ -36,8 +36,8 @@ Create a `.env` file in the root directory:
 # MongoDB Atlas Free Tier
 MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/workflow-builder?retryWrites=true&w=majority
 
-# Google Gemini API
-GEMINI_API_KEY=your_gemini_api_key_here
+# OpenRouter API (for Gemini models)
+GEMINI_API_KEY=your_openrouter_api_key_here
 
 # NextAuth Configuration
 NEXTAUTH_URL=http://localhost:3000
@@ -58,10 +58,11 @@ node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
 4. Click "Connect" → "Connect your application"
 5. Copy the connection string and replace `<password>` with your database password
 
-**Google Gemini API:**
-1. Go to [Google AI Studio](https://makersuite.google.com/app/apikey)
-2. Create an API key
-3. Copy the key to your `.env` file
+**OpenRouter API:**
+1. Go to [OpenRouter](https://openrouter.ai/keys)
+2. Create a free account and generate an API key
+3. Copy the key to your `.env` file as `GEMINI_API_KEY`
+4. OpenRouter provides access to Google Gemini models with free credits
 
 ## 🚀 Running Locally
 
@@ -89,7 +90,7 @@ npm start
 4. Import your GitHub repository
 5. Add environment variables:
    - `MONGODB_URI`
-   - `GEMINI_API_KEY`
+   - `GEMINI_API_KEY` (your OpenRouter API key)
    - `NEXTAUTH_SECRET`
    - `NEXTAUTH_URL` (set to your Vercel deployment URL)
 6. Click "Deploy"
@@ -180,7 +181,7 @@ workflow-builder-pro/
 │   └── providers.tsx    # Context providers
 ├── lib/
 │   ├── mongodb.ts       # Database connection
-│   ├── gemini.ts        # Gemini AI client
+│   ├── gemini.ts        # OpenRouter AI client (Gemini models)
 │   ├── auth.ts          # NextAuth config
 │   ├── workflowProcessor.ts  # Workflow engine
 │   ├── utils.ts         # Utility functions
@@ -224,10 +225,11 @@ The quick brown fox jumps over the lazy dog. This is a sample text for testing t
 - Check connection string format
 - Verify database user credentials
 
-### Gemini API Errors
+### OpenRouter API Errors
 - Verify API key is correct
-- Check API quota/limits
+- Check OpenRouter credits/limits at https://openrouter.ai/credits
 - Ensure internet connectivity
+- Verify the Gemini model is available on OpenRouter
 
 ### Build Errors
 - Clear `.next` folder: `rm -rf .next`
@@ -248,4 +250,4 @@ For issues or questions, please create an issue in the repository.
 
 ---
 
-**Built with ❤️ using Next.js 14, MongoDB, and Google Gemini AI**
+**Built with ❤️ using Next.js 14, MongoDB, and OpenRouter API (Google Gemini models)**
