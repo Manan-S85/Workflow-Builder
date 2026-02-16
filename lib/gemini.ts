@@ -231,10 +231,11 @@ export async function generateWithGeminiFallback(prompt: string): Promise<string
         );
     }
 
-    throw new Error(
-        `No supported Gemini model is available. Tried: ${candidates.join(', ')}`,
-        { cause: lastError }
-    );
+    if (lastError instanceof Error) {
+        throw lastError;
+    }
+
+    throw new Error(`No supported Gemini model is available. Tried: ${candidates.join(', ')}`);
 }
 
 const aiProviderClient = {

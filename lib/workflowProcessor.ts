@@ -36,7 +36,7 @@ function shouldUseLocalFallback(error: unknown): boolean {
         return true;
     }
 
-    return /quota exceeded|too many requests|model unavailable|not found|failed to list gemini models|failed to list openrouter models|invalid api key|unauthorized|forbidden|authenticate request with clerk|openrouter request failed \((401|403|429|500|502|503)/i.test(
+    return /quota exceeded|too many requests|model unavailable|not found|no supported gemini model|failed to list gemini models|failed to list openrouter models|invalid api key|unauthorized|forbidden|authenticate request with clerk|timed out|timeout|service unavailable|internal error|openrouter request failed \((401|403|429|500|502|503)|gemini.*(404|429|500|502|503|504)/i.test(
         error.message
     );
 }
