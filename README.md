@@ -61,8 +61,8 @@ node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
 **OpenRouter API:**
 1. Go to [OpenRouter](https://openrouter.ai/keys)
 2. Create a free account and generate an API key
-3. Copy the key to your `.env` file as `GEMINI_API_KEY`
-4. OpenRouter provides access to Google Gemini models with free credits
+3. Copy the key to your `.env` file as `OPENROUTER_API_KEY`
+4. OpenRouter provides access to OPENROUTER models with free credits
 
 ## 🚀 Running Locally
 
@@ -90,7 +90,7 @@ npm start
 4. Import your GitHub repository
 5. Add environment variables:
    - `MONGODB_URI`
-   - `GEMINI_API_KEY` (your OpenRouter API key)
+   - `OPENROUTER_API_KEY` (your OpenRouter API key)
    - `NEXTAUTH_SECRET`
    - `NEXTAUTH_URL` (set to your Vercel deployment URL)
 6. Click "Deploy"
@@ -106,7 +106,7 @@ vercel
 
 # Add environment variables
 vercel env add MONGODB_URI
-vercel env add GEMINI_API_KEY
+vercel env add OPENROUTER_API_KEY
 vercel env add NEXTAUTH_SECRET
 vercel env add NEXTAUTH_URL
 
@@ -181,7 +181,7 @@ workflow-builder-pro/
 │   └── providers.tsx    # Context providers
 ├── lib/
 │   ├── mongodb.ts       # Database connection
-│   ├── gemini.ts        # OpenRouter AI client (Gemini models)
+│   ├── gemini.ts        # OpenRouter AI client (OPENROUTER models)
 │   ├── auth.ts          # NextAuth config
 │   ├── workflowProcessor.ts  # Workflow engine
 │   ├── utils.ts         # Utility functions
@@ -229,7 +229,7 @@ The quick brown fox jumps over the lazy dog. This is a sample text for testing t
 - Verify API key is correct
 - Check OpenRouter credits/limits at https://openrouter.ai/credits
 - Ensure internet connectivity
-- Verify the Gemini model is available on OpenRouter
+- Verify the OPENROUTER model is available on OpenRouter
 
 ### Build Errors
 - Clear `.next` folder: `rm -rf .next`
