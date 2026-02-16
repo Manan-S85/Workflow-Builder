@@ -250,4 +250,4 @@ For issues or questions, please create an issue in the repository.
 
 ---
 
-**Built with ❤️ using Next.js 14, MongoDB, and OpenRouter API (Google Gemini models)**
+**Built with ❤️ using Next.js 14, MongoDB, and OpenRouter API (OPENROUTER models)**
