@@ -1,6 +1,6 @@
 # Workflow Builder Pro – AI Automation Studio
 
-A production-ready SaaS application for building and executing AI-powered workflow automation using Next.js 14, MongoDB Atlas, and OpenRouter API (with Google Gemini models).
+A production-ready SaaS application for building and executing AI-powered workflow automation using Next.js 14, MongoDB Atlas, and OpenRouter API (with OPENROUTER models).
 
 ## 🚀 Features
 
@@ -17,7 +17,7 @@ A production-ready SaaS application for building and executing AI-powered workfl
 
 - Node.js 18+ installed
 - MongoDB Atlas account (free tier works)
-- OpenRouter API key (for accessing Gemini models)
+- OpenRouter API key (for accessing Various models)
 - Git (optional)
 
 ## 🛠️ Installation
@@ -36,8 +36,8 @@ Create a `.env` file in the root directory:
 # MongoDB Atlas Free Tier
 MONGODB_URI=your_mongodb_uri_here
 
-# OpenRouter API (for Gemini models)
-GEMINI_API_KEY=your_openrouter_api_key_here
+# OpenRouter API (for Various models)
+OPENROUTER_API_KEY=your_openrouter_api_key_here
 
 # NextAuth Configuration
 NEXTAUTH_URL=http://localhost:3000
