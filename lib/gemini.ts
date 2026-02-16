@@ -8,7 +8,7 @@ type OpenRouterCompletionResponse = {
 
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
 const OPENROUTER_BASE_URL = process.env.OPENROUTER_BASE_URL || 'https://openrouter.ai/api/v1';
-const OPENROUTER_TIMEOUT_MS = Number.parseInt(process.env.OPENROUTER_TIMEOUT_MS || '12000', 10);
+const OPENROUTER_TIMEOUT_MS = Number.parseInt(process.env.OPENROUTER_TIMEOUT_MS || '8000', 10);
 const OPENROUTER_TOTAL_TIMEOUT_MS = Number.parseInt(process.env.OPENROUTER_TOTAL_TIMEOUT_MS || '45000', 10);
 const OPENROUTER_MODEL = (process.env.OPENROUTER_MODEL || 'deepseek/deepseek-r1-0528:free').trim();
 

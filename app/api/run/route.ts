@@ -8,6 +8,28 @@ import { runWorkflowSchema } from '@/lib/validations';
 import { processWorkflow } from '@/lib/workflowProcessor';
 
 export const maxDuration = 60;
+const WORKFLOW_PROCESS_TIMEOUT_MS = Math.max(
+    1000,
+    Number.parseInt(process.env.WORKFLOW_PROCESS_TIMEOUT_MS || '55000', 10)
+);
+
+async function runWorkflowWithTimeout(steps: string[], inputText: string) {
+    return new Promise<Awaited<ReturnType<typeof processWorkflow>>>((resolve, reject) => {
+        const timeoutId = setTimeout(() => {
+            reject(new Error(`Workflow processing timed out after ${WORKFLOW_PROCESS_TIMEOUT_MS}ms`));
+        }, WORKFLOW_PROCESS_TIMEOUT_MS);
+
+        processWorkflow(steps, inputText)
+            .then((result) => {
+                clearTimeout(timeoutId);
+                resolve(result);
+            })
+            .catch((error) => {
+                clearTimeout(timeoutId);
+                reject(error);
+            });
+    });
+}
 
 // Rate limiting (simple in-memory store for demo)
 const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
@@ -65,7 +87,7 @@ export async function POST(req: NextRequest) {
         }
 
         // Process workflow
-        const result = await processWorkflow(workflow.steps, validatedData.inputText);
+        const result = await runWorkflowWithTimeout(workflow.steps, validatedData.inputText);
 
         // Save run
         const run = await Run.create({
@@ -105,6 +127,13 @@ export async function POST(req: NextRequest) {
             return NextResponse.json(
                 { error: errorMessage || 'Gemini quota exceeded. Please retry later.' },
                 { status: 429 }
+            );
+        }
+
+        if (/timed out|timeout/i.test(errorMessage)) {
+            return NextResponse.json(
+                { error: 'Workflow timed out while processing AI steps. Please retry with shorter input or fewer steps.' },
+                { status: 408 }
             );
         }
 

@@ -15,6 +15,7 @@ export interface ProcessResult {
 export { STEP_TYPES, type StepType };
 
 const ALLOW_LOCAL_AI_FALLBACK = process.env.ALLOW_LOCAL_AI_FALLBACK !== 'false';
+const AI_STEP_TIMEOUT_MS = Math.max(1000, Number.parseInt(process.env.AI_STEP_TIMEOUT_MS || '9000', 10));
 
 
 // Step processor functions
@@ -46,7 +47,23 @@ async function runWithLocalFallback(
     fallback: () => string
 ): Promise<string> {
     try {
-        return await generateWithGeminiFallback(prompt);
+        const aiResult = await new Promise<string>((resolve, reject) => {
+            const timeoutId = setTimeout(() => {
+                reject(new Error(`AI step timed out after ${AI_STEP_TIMEOUT_MS}ms`));
+            }, AI_STEP_TIMEOUT_MS);
+
+            generateWithGeminiFallback(prompt)
+                .then((result) => {
+                    clearTimeout(timeoutId);
+                    resolve(result);
+                })
+                .catch((error) => {
+                    clearTimeout(timeoutId);
+                    reject(error);
+                });
+        });
+
+        return aiResult;
     } catch (error) {
         if (!ALLOW_LOCAL_AI_FALLBACK) {
             throw error;
