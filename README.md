@@ -44,7 +44,7 @@ Create a `.env` file in the root directory:
 MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/workflow-builder?retryWrites=true&w=majority
 
 # OpenRouter API (for Gemini models)
-GEMINI_API_KEY=your_openrouter_api_key_here
+OPENROUTER_API_KEY=your_openrouter_api_key_here
 
 # NextAuth Configuration
 NEXTAUTH_URL=http://localhost:3000
@@ -68,7 +68,7 @@ node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
 **OpenRouter API:**
 1. Go to [OpenRouter](https://openrouter.ai/keys)
 2. Create a free account and generate an API key
-3. Copy the key to your `.env` file as `GEMINI_API_KEY`
+3. Copy the key to your `.env` file as `OPENROUTER_API_KEY`
 4. OpenRouter provides access to Google Gemini models with free credits
 
 ## <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Travel%20and%20places/Rocket.png" width="25" height="25" /> Running Locally
@@ -97,7 +97,7 @@ npm start
 4. Import your GitHub repository
 5. Add environment variables:
    - `MONGODB_URI`
-   - `GEMINI_API_KEY` (your OpenRouter API key)
+  - `OPENROUTER_API_KEY` (your OpenRouter API key)
    - `NEXTAUTH_SECRET`
    - `NEXTAUTH_URL` (set to your Vercel deployment URL)
 6. Click "Deploy"
@@ -113,7 +113,7 @@ vercel
 
 # Add environment variables
 vercel env add MONGODB_URI
-vercel env add GEMINI_API_KEY
+vercel env add OPENROUTER_API_KEY
 vercel env add NEXTAUTH_SECRET
 vercel env add NEXTAUTH_URL
 

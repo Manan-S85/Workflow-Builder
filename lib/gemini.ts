@@ -70,7 +70,7 @@ function parseOpenRouterContent(content: string | Array<{ type?: string; text?: 
 }
 
 async function getModelCandidates(): Promise<string[]> {
-    return [...new Set(DEFAULT_MODEL_CANDIDATES.map(normalizeModelName).filter(Boolean))];
+    return Array.from(new Set(DEFAULT_MODEL_CANDIDATES.map(normalizeModelName).filter(Boolean)));
 }
 
 function isModelNotFoundError(error: unknown): boolean {

@@ -140,7 +140,7 @@ export default function GuidePage() {
                             <p className="text-sm font-medium text-orange-900 dark:text-orange-100 flex items-start gap-2">
                                 <AlertCircle className="h-4 w-4 mt-0.5 flex-shrink-0" />
                                 <span>
-                                    <strong>Important:</strong> Analysis steps currently output only their classification (e.g., "Neutral"),
+                                    <strong>Important:</strong> Analysis steps currently output only their classification (e.g., &quot;Neutral&quot;),
                                     discarding the original text. This means if you use them before transformation steps,
                                     those steps will only receive the classification word.
                                 </span>
@@ -197,8 +197,8 @@ export default function GuidePage() {
                             <div>
                                 <h4 className="font-medium text-sm">Avoid Analysis → Transformation</h4>
                                 <p className="text-xs text-muted-foreground mt-1">
-                                    Don't place transformation steps after analysis steps, as they'll only receive the
-                                    classification word (e.g., "Neutral" → "Neutral Position").
+                                    Don&apos;t place transformation steps after analysis steps, as they&apos;ll only receive the
+                                    classification word (e.g., &quot;Neutral&quot; → &quot;Neutral Position&quot;).
                                 </p>
                             </div>
                         </div>
@@ -297,8 +297,8 @@ export default function GuidePage() {
                             </span>
                         </div>
                         <p className="text-xs text-red-900 dark:text-red-100">
-                            This will produce nonsensical output like "Neutral Position" because Rewrite Professional
-                            receives only the word "Neutral" from Sentiment Analysis.
+                            This will produce nonsensical output like &quot;Neutral Position&quot; because Rewrite Professional
+                            receives only the word &quot;Neutral&quot; from Sentiment Analysis.
                         </p>
                     </div>
                 </CardContent>
